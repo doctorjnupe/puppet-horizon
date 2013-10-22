@@ -127,13 +127,6 @@ class horizon(
     require => Package['horizon']
   }
 
-  file_line { 'horizon_redirect_rule':
-    path    => $::horizon::params::httpd_config_file,
-    line    => "RedirectMatch permanent ^/$ ${::horizon::params::root_url}/",
-    require => Package['horizon'],
-    notify  => Service[$::horizon::params::http_service]
-  }
-
   file_line { 'httpd_listen_on_bind_address_80':
     path    => $::horizon::params::httpd_listen_config_file,
     match   => '^Listen (.*):?80$',
@@ -151,13 +144,12 @@ class horizon(
       notify  => Service[$::horizon::params::http_service],
     }
   }
-
-  $django_wsgi = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi/django.wsgi'
-
-  file_line { 'horizon root':
-    path    => $::horizon::params::httpd_config_file,
-    line    => "WSGIScriptAlias ${::horizon::params::root_url} ${django_wsgi}",
-    match   => 'WSGIScriptAlias ',
-    require => Package['horizon'],
-  }
+ 
+ # copy a remote file to /etc/apache2/conf.d/openstack-dashboard.conf
+ file { "/etc/apache2/conf.d/openstack-dashboard.conf":
+   mode => 440,
+   owner => root,
+   group => root,
+   source => "puppet:///modules/horizon/openstack-dashboard.conf"
+ }
 }
