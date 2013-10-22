@@ -74,19 +74,21 @@ class horizon(
   $horizon_app_links       = false,
   $keystone_host           = '127.0.0.1',
   $keystone_port           = 5000,
-  $keystone_scheme         = 'http',
+  $keystone_scheme         = 'https',
   $keystone_default_role   = 'Member',
   $django_debug            = 'False',
   $api_result_limit        = 1000,
   $log_level               = 'DEBUG',
   $can_set_mount_point     = 'True',
-  $listen_ssl              = false,
+  $listen_ssl              = true,
   $local_settings_template = 'horizon/local_settings.py.erb'
 ) {
 
   include horizon::params
   include apache
   include apache::mod::wsgi
+  include apache::mod::ssl
+  include apache::mod::headers
 
   if $swift {
     warning('swift parameter is deprecated and has no effect.')
